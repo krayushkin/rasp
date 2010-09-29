@@ -1,0 +1,37 @@
+.nav1 {
+ font-family: Arial, Helvetica, sans-serif;
+ font-size: large;
+ color: #000000; 
+ background-color:#DDDDFF;
+ text-align:center;
+ padding-bottom:10px;
+}
+
+
+.nav2 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: large;
+	color: #000000;
+	background-color:#DDDDDD;
+	text-align:center;
+}
+.foot {
+	font-size: small;
+	color: #333333;
+	padding-top:10px;
+}
+
+body {
+	background-color:#FEFEFF;
+	width:400px;
+	border-bottom-style:double;
+	font-family:Geneva, Arial, Helvetica, sans-serif;
+}
+a {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	color:#0077AA;
+
+}
+a:visited {
+	color:#0077AA;
+}
