@@ -33,10 +33,10 @@ def display_rasp_by_date( rasp, date):
                 unique_disc[d] = 1
             else:
                 unique_disc[d] += 1
-        r = u"".join( [u"{0} ({1})<br>".format(r, count) for r, count in unique_disc.items()] )
+        r = u"".join( [u"<li>{0} ({1})</li>".format(r, count) for r, count in unique_disc.items()] )
 
-    return u"""<p>{2} | {0} | {3}<br><br>{4}</p>
-    {1}<br>
+    return u"""<div class="nav2">{2} | {0} | {3}</div><br>{4}
+   <br><ul>{1}</ul>
     """.format(date, r, prev_day_link, next_day_link, weeks[date.weekday()]) 
 
 def display_all_disc(student, stud_disc):
@@ -91,6 +91,7 @@ def app_helper(environ, start_response):
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         
         <title>Расписание</title>
+        <link href="/style.css" rel="stylesheet" type="text/css" />
       </head>
       <body>
     """
@@ -112,7 +113,7 @@ def app_helper(environ, start_response):
         elif to_date( form["date"] ) == (datetime.date.today() + datetime.timedelta(1)):
             tomorrow_link = u"<b>Завтра</b>"
 
-    yield u"{0}  |  {1}<br>".format(today_link, tomorrow_link)
+    yield u"""<div class="nav1">{0}  |  {1}</div>""".format(today_link, tomorrow_link)
 
     if "date" in form:
         date = None
@@ -142,8 +143,9 @@ def app_helper(environ, start_response):
      <br>Дисциплины: <SELECT name="stud">{0}</SELECT><INPUT type="submit" value="Показать"></FORM>""".format(options_stud)
     yield disc_form
     yield u"""
-<p>Расписание ЦОО ФИСТ ЭВМ alpha {0}</p>
-Заметили ошибку или есть пожелания? <a href="mailto:cr0ss@mail.ru">Пишите</a>
+    <div class="foot">
+Расписание ЦОО ФИСТ ЭВМ alpha {0}
+Заметили ошибку или есть пожелания? <a href="mailto:cr0ss@mail.ru">Пишите</a></div>
 """.format(escape(u"© 2010 Краюшкин Дмитрий"))
     yield u"""
     </body>
