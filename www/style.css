@@ -2,11 +2,16 @@
  font-family: Arial, Helvetica, sans-serif;
  font-size: large;
  color: #000000; 
- background-color:#DDDDFF;
+ background-color:#CCAAEE;
  text-align:center;
  padding-bottom:10px;
+ padding-top:10px;
 }
 
+.weekday {
+ font-size: large;
+ text-align:center;
+}
 
 .nav2 {
 	font-family: Arial, Helvetica, sans-serif;
@@ -14,17 +19,17 @@
 	color: #000000;
 	background-color:#DDDDDD;
 	text-align:center;
+ padding-bottom:10px;
+ padding-top:10px;
 }
 .foot {
 	font-size: small;
 	color: #333333;
-	padding-top:10px;
+        border-top-style:groove;
 }
 
 body {
 	background-color:#FEFEFF;
-	width:400px;
-	border-bottom-style:double;
 	font-family:Geneva, Arial, Helvetica, sans-serif;
 }
 a {

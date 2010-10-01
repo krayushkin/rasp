@@ -8,7 +8,6 @@ import sys, os
 import xlrd
 
 
-
 def display_main():
     rasp_date_form = u"""<FORM action="rasp.fcgi" method="get">
 Дата: <INPUT type="text" name="date">
@@ -35,15 +34,16 @@ def display_rasp_by_date( rasp, date):
                 unique_disc[d] += 1
         r = u"".join( [u"<li>{0} ({1})</li>".format(r, count) for r, count in unique_disc.items()] )
 
-    return u"""<div class="nav2">{2} | {0} | {3}</div><br>{4}
+    return u"""<div class="nav2">{2} | {0} | {3}</div><br><div class="weekday">{4}</div>
    <br><ul>{1}</ul>
     """.format(date, r, prev_day_link, next_day_link, weeks[date.weekday()]) 
 
 def display_all_disc(student, stud_disc):
     d = u"".join( [u"<li>{0}</li>".format(d) for d in sorted(stud_disc)] )
     return u"""
-    <p><b>Дисциплины</b></p>
-    <p>{0}</p>
+    <div class="nav2">Дисциплины</div>
+    <br>
+    <div class="weekday">{0}</div>
     <ol>{1}</ol><br>
     """.format(student, d)
 
@@ -144,7 +144,7 @@ def app_helper(environ, start_response):
     yield disc_form
     yield u"""
     <div class="foot">
-Расписание ЦОО ФИСТ ЭВМ alpha {0}
+Расписание ЦОО ФИСТ ЭВМ alpha {0}<br>
 Заметили ошибку или есть пожелания? <a href="mailto:cr0ss@mail.ru">Пишите</a></div>
 """.format(escape(u"© 2010 Краюшкин Дмитрий"))
     yield u"""
