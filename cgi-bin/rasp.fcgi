@@ -7,11 +7,64 @@ import rasp
 import sys, os
 import xlrd
 
+#os.environ["FCGI_FORCE_CGI"] = "Y"
+
+
+css_style = u"""
+<style type="text/css">
+.nav1 {
+ font-family: Arial, Helvetica, sans-serif;
+ font-size: large;
+ color: #000000; 
+ padding-bottom:10px;
+ padding-top:10px;
+}
+
+.weekday {
+ font-size: large;
+}
+
+.nav2 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: large;
+	color: #000000;
+ padding-bottom:10px;
+ padding-top:10px;
+}
+.foot {
+	font-size: small;
+	color: #333333;
+        border-top-style:groove;
+}
+
+body {
+	font-family:Geneva, Arial, Helvetica, sans-serif;
+}
+a {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	color:#0077AA;
+
+}
+a:visited {
+	color:#0077AA;
+}
+
+.discform {
+padding-bottom: 10px;
+
+}
+
+</style>
+"""
+
+
 
 def display_main():
     rasp_date_form = u"""<form action="rasp.fcgi" method="get">
+<div>
 Дата: <input type="text" name="date"></input>
 <input type="submit" value="Показать"></input>
+</div>
  </form>"""
     return rasp_date_form
 
@@ -24,7 +77,7 @@ def display_rasp_by_date( rasp, date):
 
     r = None
     if rasp == []:
-        r = u"Предметов в этот день нет, либо они ещё не указаны в расписании<br></br>"
+        r = u"Предметов в этот день нет, либо они ещё не указаны в расписании"
     else:
         unique_disc = {}
         for d in rasp:
@@ -34,7 +87,7 @@ def display_rasp_by_date( rasp, date):
                 unique_disc[d] += 1
         r = u"".join( [u"<li>{0} ({1})</li>".format(r, count) for r, count in unique_disc.items()] )
 
-    return u"""<div class="nav2">{2} <b>|</b> {0} <b>|</b> {3}</div><br></br><div class="weekday">{4}:</div>
+    return u"""<div class="nav2">{2} | {0} | {3}</div><div class="weekday">{4}:</div>
    <ul>{1}</ul>
     """.format(date, r, prev_day_link, next_day_link, weeks[date.weekday()]) 
 
@@ -42,9 +95,9 @@ def display_all_disc(student, stud_disc):
     d = u"".join( [u"<li>{0}</li>".format(d) for d in sorted(stud_disc)] )
     return u"""
     <div class="nav2">Дисциплины</div>
-    <br></br>
+    
     <div class="weekday">{0}</div>
-    <ol>{1}</ol><br></br>
+    <ol>{1}</ol>
     """.format(student, d)
 
 def to_date(string_date):
@@ -73,7 +126,7 @@ name_discip_dict = rasp.get_discip_list(book.sheet_by_index(1) )
 date_rasp_dict = rasp.get_rasp(book.sheet_by_index(0) )
 
 def app(environ, start_response):
-    start_response('200 OK', [('Content-Type', 'text/html'), ('Content-Encoding', 'utf-8') ])
+    start_response('200 OK', [('Content-Type', 'text/html; charset=UTF-8') ])
     for s in app_helper(environ, start_response):
         yield s.encode("utf-8")
 
@@ -88,15 +141,15 @@ def app_helper(environ, start_response):
 
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" /> 
 	<meta name="MobileOptimized" content="240" /> 
 	<meta name="PalmComputingPlatform" content="true" /> 
         <title>Расписание</title>
-        <link href="/style.css" rel="stylesheet" type="text/css" />
+         {0}
       </head>
       <body>
-    """
+    """.format(css_style)
 
     today_link = u"""<a href="rasp.fcgi?date=today">Сегодня</a>"""
     tomorrow_link = u"""<a href="rasp.fcgi?date=tomorrow">Завтра</a>"""
@@ -106,16 +159,16 @@ def app_helper(environ, start_response):
 
     if "date" in form:
         if form["date"] == "today":
-            today_link = u"<b>Сегодня</b>"
+            today_link = u"Сегодня"
         elif form["date"] == "tomorrow":
-            tomorrow_link = u"<b>Завтра</b>"
+            tomorrow_link = u"Завтра"
 
         elif to_date( form["date"] ) == datetime.date.today():
-            today_link = u"<b>Сегодня</b>"
+            today_link = u"Сегодня"
         elif to_date( form["date"] ) == (datetime.date.today() + datetime.timedelta(1)):
-            tomorrow_link = u"<b>Завтра</b>"
+            tomorrow_link = u"Завтра"
 
-    yield u"""<div class="nav1">{0}  <b>|</b>  {1}</div>""".format(today_link, tomorrow_link)
+    yield u"""<div class="nav1">{0}  |  {1}</div>""".format(today_link, tomorrow_link)
 
     if "date" in form:
         date = None
@@ -143,12 +196,13 @@ def app_helper(environ, start_response):
     first_stud_opt = u"""<option selected="selected">{0}</option>""".format(first_stud)
     options_stud = first_stud_opt + u"". join ([ u"<option>{0}</option>".format(stud) for stud in students_list] )
     disc_form = u"""  
-    <form action="rasp.fcgi" method="get">
-     <br></br>Дисциплины:<br></br><select name="stud">{0}</select><input type="submit" value="Показать"></input></form><br></br>""".format(options_stud)
+   <div class="discform">   <form action="rasp.fcgi" method="get">
+<div>
+ <select name="stud">{0}</select><input type="submit" value="Дисциплины" /></div></form>  </div>""".format(options_stud)
     yield disc_form
     yield u"""
     <div class="foot">
-Расписание ЦОО ФИСТ ЭВМ alpha {0}<br></br>
+<div>Расписание ЦОО ФИСТ ЭВМ alpha {0}</div>
 Заметили ошибку или есть пожелания? <a href="mailto:cr0ss@mail.ru">Пишите</a></div>
 """.format(escape(u"© 2010 Краюшкин Дмитрий"))
     yield u"""
