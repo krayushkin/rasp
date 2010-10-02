@@ -9,10 +9,10 @@ import xlrd
 
 
 def display_main():
-    rasp_date_form = u"""<FORM action="rasp.fcgi" method="get">
-Дата: <INPUT type="text" name="date">
-<INPUT type="submit" value="Показать">
- </FORM>"""
+    rasp_date_form = u"""<form action="rasp.fcgi" method="get">
+Дата: <input type="text" name="date"></input>
+<input type="submit" value="Показать"></input>
+ </form>"""
     return rasp_date_form
 
 
@@ -24,7 +24,7 @@ def display_rasp_by_date( rasp, date):
 
     r = None
     if rasp == []:
-        r = u"Предметов в этот день нет, либо они не указаны в расписании<br>"
+        r = u"Предметов в этот день нет, либо они ещё не указаны в расписании<br></br>"
     else:
         unique_disc = {}
         for d in rasp:
@@ -34,17 +34,17 @@ def display_rasp_by_date( rasp, date):
                 unique_disc[d] += 1
         r = u"".join( [u"<li>{0} ({1})</li>".format(r, count) for r, count in unique_disc.items()] )
 
-    return u"""<div class="nav2">{2} | {0} | {3}</div><br><div class="weekday">{4}</div>
-   <br><ul>{1}</ul>
+    return u"""<div class="nav2">{2} <b>|</b> {0} <b>|</b> {3}</div><br></br><div class="weekday">{4}:</div>
+   <ul>{1}</ul>
     """.format(date, r, prev_day_link, next_day_link, weeks[date.weekday()]) 
 
 def display_all_disc(student, stud_disc):
     d = u"".join( [u"<li>{0}</li>".format(d) for d in sorted(stud_disc)] )
     return u"""
     <div class="nav2">Дисциплины</div>
-    <br>
+    <br></br>
     <div class="weekday">{0}</div>
-    <ol>{1}</ol><br>
+    <ol>{1}</ol><br></br>
     """.format(student, d)
 
 def to_date(string_date):
@@ -89,7 +89,9 @@ def app_helper(environ, start_response):
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" /> 
+	<meta name="MobileOptimized" content="240" /> 
+	<meta name="PalmComputingPlatform" content="true" /> 
         <title>Расписание</title>
         <link href="/style.css" rel="stylesheet" type="text/css" />
       </head>
@@ -113,7 +115,7 @@ def app_helper(environ, start_response):
         elif to_date( form["date"] ) == (datetime.date.today() + datetime.timedelta(1)):
             tomorrow_link = u"<b>Завтра</b>"
 
-    yield u"""<div class="nav1">{0}  |  {1}</div>""".format(today_link, tomorrow_link)
+    yield u"""<div class="nav1">{0}  <b>|</b>  {1}</div>""".format(today_link, tomorrow_link)
 
     if "date" in form:
         date = None
@@ -136,15 +138,17 @@ def app_helper(environ, start_response):
             yield display_all_disc(stud_name, name_discip_dict[ stud_name ] )
         else:
             yield u"<p>Такого студента нет в базе</p>"
-
-    options_stud = u"". join ([ u"<option>{0}</option>".format(stud) for stud in sorted(name_discip_dict.keys())] )
+    students_list = sorted(name_discip_dict.keys())
+    first_stud = students_list.pop(0)
+    first_stud_opt = u"""<option selected="selected">{0}</option>""".format(first_stud)
+    options_stud = first_stud_opt + u"". join ([ u"<option>{0}</option>".format(stud) for stud in students_list] )
     disc_form = u"""  
-    <FORM action="rasp.fcgi" method="get">
-     <br>Дисциплины: <SELECT name="stud">{0}</SELECT><INPUT type="submit" value="Показать"></FORM>""".format(options_stud)
+    <form action="rasp.fcgi" method="get">
+     <br></br>Дисциплины:<br></br><select name="stud">{0}</select><input type="submit" value="Показать"></input></form><br></br>""".format(options_stud)
     yield disc_form
     yield u"""
     <div class="foot">
-Расписание ЦОО ФИСТ ЭВМ alpha {0}<br>
+Расписание ЦОО ФИСТ ЭВМ alpha {0}<br></br>
 Заметили ошибку или есть пожелания? <a href="mailto:cr0ss@mail.ru">Пишите</a></div>
 """.format(escape(u"© 2010 Краюшкин Дмитрий"))
     yield u"""
