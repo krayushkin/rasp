@@ -1,71 +1,27 @@
 #!/usr/bin/eval PYTHONPATH=/home/krayushka/modules python
 # -*- coding: utf8 -*
 
-
 import datetime
 import rasp
 import sys, os
 import xlrd
+import codecs
 
 #os.environ["FCGI_FORCE_CGI"] = "Y"
 
-
-css_style = u"""
-<style type="text/css">
-.nav1 {
- font-family: Arial, Helvetica, sans-serif;
- font-size: large;
- color: #000000; 
- padding-bottom:10px;
- padding-top:10px;
-}
-
-.weekday {
- font-size: large;
-}
-
-.nav2 {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: large;
-	color: #000000;
- padding-bottom:10px;
- padding-top:10px;
-}
-.foot {
-	font-size: small;
-	color: #333333;
-        border-top-style:groove;
-}
-
-body {
-	font-family:Geneva, Arial, Helvetica, sans-serif;
-}
-a {
-	font-family:Verdana, Arial, Helvetica, sans-serif;
-	color:#0077AA;
-
-}
-a:visited {
-	color:#0077AA;
-}
-
-.discform {
-padding-bottom: 10px;
-
-}
-
-</style>
-"""
-
+css_file = codecs.open("style.css", encoding="utf-8")
+css_style = u""" <style type="text/css"> {0} </style> """.format(css_file.read())
 
 
 def display_main():
-    rasp_date_form = u"""<form action="rasp.fcgi" method="get">
+    rasp_date_form = u"""
+<form action="rasp.fcgi" method="get">
 <div>
 Дата: <input type="text" name="date"></input>
 <input type="submit" value="Показать"></input>
 </div>
- </form>"""
+</form>
+"""
     return rasp_date_form
 
 
@@ -94,8 +50,7 @@ def display_rasp_by_date( rasp, date):
 def display_all_disc(student, stud_disc):
     d = u"".join( [u"<li>{0}</li>".format(d) for d in sorted(stud_disc)] )
     return u"""
-    <div class="nav2">Дисциплины</div>
-    
+    <div class="nav2">Дисциплины</div>    
     <div class="weekday">{0}</div>
     <ol>{1}</ol>
     """.format(student, d)
@@ -136,19 +91,18 @@ def app_helper(environ, start_response):
     for k, v in qs.items():
         form[k] = v[0]
     yield u"""
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-    <html xmlns="http://www.w3.org/1999/xhtml">
-      <head>
-        <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
-<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" /> 
-	<meta name="MobileOptimized" content="240" /> 
-	<meta name="PalmComputingPlatform" content="true" /> 
-        <title>Расписание</title>
-         {0}
-      </head>
-      <body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" /> 
+    <meta name="MobileOptimized" content="240" /> 
+    <meta name="PalmComputingPlatform" content="true" /> 
+    <title>Расписание</title>
+     {0}
+  </head>
+<body>
     """.format(css_style)
 
     today_link = u"""<a href="rasp.fcgi?date=today">Сегодня</a>"""
@@ -193,21 +147,30 @@ def app_helper(environ, start_response):
             yield u"<p>Такого студента нет в базе</p>"
     students_list = sorted(name_discip_dict.keys())
     first_stud = students_list.pop(0)
-    first_stud_opt = u"""<option selected="selected">{0}</option>""".format(first_stud)
+    first_stud_opt = u""" <option selected="selected">{0}</option>""".format(first_stud)
     options_stud = first_stud_opt + u"". join ([ u"<option>{0}</option>".format(stud) for stud in students_list] )
-    disc_form = u"""  
-   <div class="discform">   <form action="rasp.fcgi" method="get">
-<div>
- <select name="stud">{0}</select><input type="submit" value="Дисциплины" /></div></form>  </div>""".format(options_stud)
+    disc_form = u"""
+<div class="discform">
+  <form action="rasp.fcgi" method="get">
+    <div>
+      <select name="stud">{0}</select>
+      <input type="submit" value="Дисциплины" />
+    </div>
+  </form>
+</div>
+""".format(options_stud)
     yield disc_form
     yield u"""
-    <div class="foot">
-<div>Расписание ЦОО ФИСТ ЭВМ alpha {0}</div>
-Заметили ошибку или есть пожелания? <a href="mailto:cr0ss@mail.ru">Пишите</a></div>
+<div class="foot">
+  <div>
+    Расписание ЦОО ФИСТ ЭВМ alpha {0}
+  </div>
+    Заметили ошибку или есть пожелания? <a href="mailto:cr0ss@mail.ru">Пишите</a>
+</div>
 """.format(escape(u"© 2010 Краюшкин Дмитрий"))
     yield u"""
-    </body>
-    </html>"""
+</body>
+</html>"""
 
 WSGIServer(app).run()
 
