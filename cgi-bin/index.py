@@ -1,4 +1,4 @@
-#!/usr/bin/eval PYTHONPATH=/home/krayushka/modules python
+#!/usr/bin/python
 # -*- coding: utf8 -*
 
 import datetime
